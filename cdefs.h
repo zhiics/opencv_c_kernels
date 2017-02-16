@@ -9,6 +9,9 @@
 #include <limits.h>
 #include <math.h>
 
+#define EPSILON 0.000001
+
+
 typedef unsigned char uchar;
 typedef signed char schar;
 typedef unsigned short ushort;

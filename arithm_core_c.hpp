@@ -1,13 +1,13 @@
 #include <stddef.h>
-
 #include "cdefs.h"
-
+#include <stdio.h>
 /*******************************************************************
- *                  different version of add operations            * 
+ *                  different version of add operations            *
  ******************************************************************/
 
-uchar opAdd_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2,
+int add_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2,
                   uchar *dst, size_t step, int width, int height) {
+
 
   for (; height--; src1 = (uchar *)((const uchar *)src1 + step1),
                    src2 = (uchar *)((const uchar *)src2 + step2),
@@ -30,9 +30,10 @@ uchar opAdd_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2,
     for (; x < width; x++)
       dst[x] = saturate_cast_uchar_ushort(src1[x] + src2[x]);
   }
+  return 0;
 }
 
-schar opAdd_schar(schar *src1, size_t step1, schar *src2, size_t step2,
+int add_schar(schar *src1, size_t step1, schar *src2, size_t step2,
                   schar *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (schar *)((const uchar *)src1 + step1),
@@ -56,9 +57,10 @@ schar opAdd_schar(schar *src1, size_t step1, schar *src2, size_t step2,
     for (; x < width; x++)
       dst[x] = saturate_cast_schar_short(src1[x] + src2[x]);
   }
+  return 0;
 }
 
-short opAdd_short(short *src1, size_t step1, short *src2, size_t step2,
+int add_short(short *src1, size_t step1, short *src2, size_t step2,
                   short *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (short *)((const uchar *)src1 + step1),
@@ -82,9 +84,10 @@ short opAdd_short(short *src1, size_t step1, short *src2, size_t step2,
     for (; x < width; x++)
       dst[x] = saturate_cast_short_int(src1[x] + src2[x]);
   }
+  return 0;
 }
 
-int opAdd_int(int *src1, size_t step1, int *src2, size_t step2,
+int add_int32(int *src1, size_t step1, int *src2, size_t step2,
                   int *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (int *)((const uchar *)src1 + step1),
@@ -110,7 +113,7 @@ int opAdd_int(int *src1, size_t step1, int *src2, size_t step2,
   }
 }
 
-float opAdd_float(float *src1, size_t step1, float *src2, size_t step2,
+float add_float(float *src1, size_t step1, float *src2, size_t step2,
                   float *dst, size_t step, float width, float height) {
 
   for (; height--; src1 = (float *)((const uchar *)src1 + step1),
@@ -137,10 +140,10 @@ float opAdd_float(float *src1, size_t step1, float *src2, size_t step2,
 }
 
 /*******************************************************************
- *                  different version of sub operations            * 
+ *                  different version of sub operations            *
  ******************************************************************/
 
-uchar opSub_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2,
+uchar sub_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2,
                   uchar *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (uchar *)((const uchar *)src1 + step1),
@@ -162,11 +165,11 @@ uchar opSub_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2,
 #endif
 
     for (; x < width; x++)
-      dst[x] = saturate_cast_uchar_ushort(src1[x] - src2[x]);
+      dst[x] = saturate_cast_uchar_short(src1[x] - src2[x]);
   }
 }
 
-schar opSub_schar(schar *src1, size_t step1, schar *src2, size_t step2,
+schar sub_schar(schar *src1, size_t step1, schar *src2, size_t step2,
                   schar *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (schar *)((const uchar *)src1 + step1),
@@ -192,7 +195,7 @@ schar opSub_schar(schar *src1, size_t step1, schar *src2, size_t step2,
   }
 }
 
-short opSub_short(short *src1, size_t step1, short *src2, size_t step2,
+short sub_short(short *src1, size_t step1, short *src2, size_t step2,
                   short *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (short *)((const uchar *)src1 + step1),
@@ -218,7 +221,7 @@ short opSub_short(short *src1, size_t step1, short *src2, size_t step2,
   }
 }
 
-int opSub_int(int *src1, size_t step1, int *src2, size_t step2,
+int sub_int32(int *src1, size_t step1, int *src2, size_t step2,
                   int *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (int *)((const uchar *)src1 + step1),
@@ -244,7 +247,7 @@ int opSub_int(int *src1, size_t step1, int *src2, size_t step2,
   }
 }
 
-float opSub_float(float *src1, size_t step1, float *src2, size_t step2,
+float sub_float(float *src1, size_t step1, float *src2, size_t step2,
                   float *dst, size_t step, float width, float height) {
 
   for (; height--; src1 = (float *)((const uchar *)src1 + step1),
@@ -271,7 +274,7 @@ float opSub_float(float *src1, size_t step1, float *src2, size_t step2,
 }
 
 /*******************************************************************
- *                  different version of cmp operations            * 
+ *                  different version of cmp operations            *
  ******************************************************************/
 
 void cmp_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2, uchar *dst,
@@ -285,7 +288,7 @@ void cmp_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2, uchar *dst,
         swap(*src1, *src2, uchar);
         swap(step1, step2, size_t);
         code = code == CMP_GE ? CMP_LE : CMP_GT;
-    } 
+    }
     if( code == CMP_GT || code == CMP_LE )
     {
         int m = code == CMP_GT ? 0 : 255;
@@ -453,7 +456,7 @@ void cmp_short(short *src1, size_t step1, short *src2, size_t step2, uchar *dst,
 
 }
 
-void cmp_int(int *src1, size_t step1, int *src2, size_t step2, uchar *dst,
+void cmp_int32(int *src1, size_t step1, int *src2, size_t step2, uchar *dst,
      size_t step, int width, int height, int code) {
 
     step1 /= sizeof(src1[0]);
@@ -574,11 +577,10 @@ void cmp_float(float *src1, size_t step1, float *src2, size_t step2, uchar *dst,
 }
 
 /*******************************************************************
- *                  different version of mul operations            * 
+ *                  different version of mul operations            *
  ******************************************************************/
-
 void mul_uchar(uchar *src1, size_t step1, uchar* src2, size_t step2,
-      uchar* dst, size_t step, int width, int height, float scale )
+      uchar* dst, size_t step, int width, int height, float scale)
 {
     step1 /= sizeof(src1[0]);
     step2 /= sizeof(src2[0]);
@@ -736,7 +738,7 @@ void mul_short(short *src1, size_t step1, short* src2, size_t step2,
     }
 }
 
-void mul_int(int *src1, size_t step1, int* src2, size_t step2,
+void mul_int32(int *src1, size_t step1, int* src2, size_t step2,
       int* dst, size_t step, int width, int height, float scale )
 {
     step1 /= sizeof(src1[0]);
@@ -843,7 +845,7 @@ void mul_float(float *src1, size_t step1, float* src2, size_t step2,
 }
 
 /*******************************************************************
- *                  different version of div operations            * 
+ *                  different version of div operations            *
  ******************************************************************/
 
 void div_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2, uchar *dst,
@@ -894,7 +896,7 @@ void div_short(short *src1, size_t step1, short *src2, size_t step2, short *dst,
   }
 }
 
-void div_int(int *src1, size_t step1, int *src2, size_t step2, int *dst,
+void div_int32(int *src1, size_t step1, int *src2, size_t step2, int *dst,
                size_t step, int width, int height, double scale) {
   step1 /= sizeof(src1[0]);
   step2 /= sizeof(src2[0]);
@@ -927,7 +929,7 @@ void div_float(float *src1, size_t step1, short *src2, size_t step2, short *dst,
 }
 
 /*******************************************************************
- *                different version of recip operations            * 
+ *                different version of recip operations            *
  ******************************************************************/
 void recip_uchar(uchar *src2, size_t step2, uchar *dst, size_t step, int width,
              int height, double scale) {
@@ -974,7 +976,7 @@ void recip_short(short *src2, size_t step2, short *dst, size_t step, int width,
   }
 }
 
-void recip_int(int *src2, size_t step2, int *dst, size_t step, int width,
+void recip_int32(int *src2, size_t step2, int *dst, size_t step, int width,
              int height, double scale) {
   step2 /= sizeof(src2[0]);
   step /= sizeof(dst[0]);
@@ -1004,11 +1006,11 @@ void recip_float(float *src2, size_t step2, float *dst, size_t step, int width,
   }
 }
 /*******************************************************************
- *         different version of weighted add operations            * 
+ *         different version of weighted add operations            *
  ******************************************************************/
 void addWeighted_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2, uchar *dst,
              size_t step, int width, int height, void *_scalars) {
-  
+
 	double *scalars = (double *)_scalars;
   float alpha = (float)scalars[0], beta = (float)scalars[1], gamma = (float)scalars[2];
   step1 /= sizeof(src1[0]);
@@ -1037,7 +1039,7 @@ void addWeighted_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2, uch
 
 void addWeighted_schar(schar *src1, size_t step1, schar *src2, size_t step2, schar *dst,
              size_t step, int width, int height, void *_scalars) {
-  
+
 	double *scalars = (double *)_scalars;
   float alpha = (float)scalars[0], beta = (float)scalars[1], gamma = (float)scalars[2];
   step1 /= sizeof(src1[0]);
@@ -1066,7 +1068,7 @@ void addWeighted_schar(schar *src1, size_t step1, schar *src2, size_t step2, sch
 
 void addWeighted_short(short *src1, size_t step1, short *src2, size_t step2, short *dst,
              size_t step, int width, int height, void *_scalars) {
-  
+
 	double *scalars = (double *)_scalars;
   float alpha = (float)scalars[0], beta = (float)scalars[1], gamma = (float)scalars[2];
   step1 /= sizeof(src1[0]);
@@ -1093,9 +1095,9 @@ void addWeighted_short(short *src1, size_t step1, short *src2, size_t step2, sho
   }
 }
 
-void addWeighted_int(int *src1, size_t step1, int *src2, size_t step2, int *dst,
+void addWeighted_int32(int *src1, size_t step1, int *src2, size_t step2, int *dst,
              size_t step, int width, int height, void *_scalars) {
-  
+
 	double *scalars = (double *)_scalars;
   float alpha = (float)scalars[0], beta = (float)scalars[1], gamma = (float)scalars[2];
   step1 /= sizeof(src1[0]);
@@ -1124,7 +1126,7 @@ void addWeighted_int(int *src1, size_t step1, int *src2, size_t step2, int *dst,
 
 void addWeighted_float(float *src1, size_t step1, float *src2, size_t step2, float *dst,
              size_t step, int width, int height, void *_scalars) {
-  
+
 	double *scalars = (double *)_scalars;
   float alpha = (float)scalars[0], beta = (float)scalars[1], gamma = (float)scalars[2];
   step1 /= sizeof(src1[0]);
