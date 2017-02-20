@@ -8,9 +8,17 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <math.h>
+#include <stdio.h>
+
+#define CV_Error(fmt)                                                          \
+  ({                                                                           \
+    printf("Error %s:%d: %s\n", __FILE__, __LINE__, fmt);                      \
+    exit(1);                                                                   \
+  })
 
 #define EPSILON 0.000001
-
+#define false 0
+#define true 1
 
 typedef unsigned char uchar;
 typedef signed char schar;
@@ -19,6 +27,7 @@ typedef uint32_t uint32;
 typedef int32_t int32;
 typedef int64_t int64;
 typedef uint64_t uint64;
+typedef uchar bool;
 
 #ifndef UCHAR_MAX
 #define UCHAR_MAX 255
@@ -62,8 +71,8 @@ typedef uint64_t uint64;
 #define saturate_cast_uchar_schar(v) ({ (uchar) max((int)(v), 0); })
 
 #define saturate_cast_uchar_ushort(v)                                          \
-  ({ (uchar)((unsigned)(v) < (unsigned) UCHAR_MAX ? (v) : UCHAR_MAX); })
-  //({ (uchar) min((unsigned)(v), (unsigned)UCHAR_MAX); })
+  ({ (uchar)((unsigned)(v) < (unsigned)UCHAR_MAX ? (v) : UCHAR_MAX); })
+//({ (uchar) min((unsigned)(v), (unsigned)UCHAR_MAX); })
 
 #define saturate_cast_uchar_int(v)                                             \
   ({ (uchar)((unsigned)(v) <= UCHAR_MAX ? (v) : (v) > 0 ? UCHAR_MAX : 0); })
@@ -224,6 +233,29 @@ enum CmpTypes {
   CMP_LT = 3, //!< src1 is less than src2.
   CMP_LE = 4, //!< src1 is less than or equal to src2.
   CMP_NE = 5  //!< src1 is unequal to src2.
+};
+
+enum ThresholdTypes {
+  THRESH_BINARY = 0,     //!< \f[\texttt{dst} (x,y) =  \fork{\texttt{maxval}}{if
+                         //!\(\texttt{src}(x,y) >
+                         //!\texttt{thresh}\)}{0}{otherwise}\f]
+  THRESH_BINARY_INV = 1, //!< \f[\texttt{dst} (x,y) =  \fork{0}{if
+                         //!\(\texttt{src}(x,y) >
+                         //!\texttt{thresh}\)}{\texttt{maxval}}{otherwise}\f]
+  THRESH_TRUNC = 2,  //!< \f[\texttt{dst} (x,y) =  \fork{\texttt{threshold}}{if
+                     //!\(\texttt{src}(x,y) >
+                     //!\texttt{thresh}\)}{\texttt{src}(x,y)}{otherwise}\f]
+  THRESH_TOZERO = 3, //!< \f[\texttt{dst} (x,y) =  \fork{\texttt{src}(x,y)}{if
+                     //!\(\texttt{src}(x,y) >
+                     //!\texttt{thresh}\)}{0}{otherwise}\f]
+  THRESH_TOZERO_INV = 4, //!< \f[\texttt{dst} (x,y) =  \fork{0}{if
+                         //!\(\texttt{src}(x,y) >
+                         //!\texttt{thresh}\)}{\texttt{src}(x,y)}{otherwise}\f]
+  THRESH_MASK = 7,
+  THRESH_OTSU =
+      8, //!< flag, use Otsu algorithm to choose the optimal threshold value
+  THRESH_TRIANGLE =
+      16 //!< flag, use Triangle algorithm to choose the optimal threshold value
 };
 
 #endif
