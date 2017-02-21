@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "cdefs.h"
-#include "arithm_core_c.hpp"
+#include "arithm_core_c.c"
 
 #define MAKE_ASSERT_EQ(T)\
   int assert_eq_##T(T* arr1, T* arr2, size_t len){\
