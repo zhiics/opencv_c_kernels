@@ -4,11 +4,11 @@
 
 #define MAKE_ASSERT_EQ(T)\
   int assert_eq_##T(T* arr1, T* arr2, size_t len){\
-    size_t i;\
+    int i;\
     int ret=0;\
     for(i = 0; i < len; i = i+1) { \
       if ((arr1[i]-arr2[i]) > EPSILON || (arr2[i]-arr1[i]) > EPSILON) {\
-        printf("Mismatch at index %d %d %d\n", i, arr1[i], arr2[i]); \
+        printf("Mismatch at index %d. Got %f, expected %f\n", i, arr1[i], arr2[i]); \
         ret=-1;\
       }\
     }\
@@ -62,7 +62,6 @@ MAKE_ASSERT_EQ(float)
                 }
 
 // Generate Test Functinos
-
 MAKE_TEST_ADDSUB(uchar, add)
 MAKE_TEST_ADDSUB(uchar, sub)
 MAKE_TEST_MULDIV(uchar, mul)
@@ -84,14 +83,26 @@ MAKE_TEST_MULDIV(short, div)
 MAKE_TEST_RECIP(short)
 MAKE_TEST_ADD_WEIGHTED(short)
 
+MAKE_TEST_ADDSUB(int32, add)
+MAKE_TEST_ADDSUB(int32, sub)
+MAKE_TEST_MULDIV(int32, mul)
+MAKE_TEST_MULDIV(int32, div)
+MAKE_TEST_RECIP(int32)
+MAKE_TEST_ADD_WEIGHTED(int32)
+
 MAKE_TEST_ADDSUB(float, add)
 MAKE_TEST_ADDSUB(float, sub)
 MAKE_TEST_MULDIV(float, mul)
 MAKE_TEST_MULDIV(float, div)
+
+
 MAKE_TEST_RECIP(float)
 MAKE_TEST_ADD_WEIGHTED(float)
 
+
 int main() {
+
+  size_t width, height, step;
 
   // Uchar tests
   uchar uchar_arr1[10] = {1, 0, 3, 4, 250, 60, 70, 8, 100, 90};
@@ -136,6 +147,70 @@ int main() {
 
   short short_recip_arr_expected[10] = {0, 3, 2, 0, 1, 1, 0, 0, 0, 0};
   test_recip_short(short_arr2, short_arr_dst, short_recip_arr_expected, 1, 10, 1, 5.0);
+
+
+  // Int32 tests
+  int32 int32_arr1[10] = {-30001, 2<<30, 3, 4, 2500, 600, 700, 800, 100, 2<<31};
+  int32 int32_arr2[10] = {10000, 2<<10, 3, 40, -5, 6, -107, 80, 200, -100};
+  int32 int32_arr_dst[10];
+
+  int32 int32_add_arr_expected[10];
+  for(int i=0; i < 10; ++i)
+   int32_add_arr_expected[i] = int32_arr1[i] + int32_arr2[i];
+  test_add_int32(int32_arr1, int32_arr2, int32_arr_dst, int32_add_arr_expected, 1, 10, 1);
+
+  int32 int32_sub_arr_expected[10];
+  for(int i=0; i < 10; ++i)
+   int32_sub_arr_expected[i] = int32_arr1[i] - int32_arr2[i];
+  test_sub_int32(int32_arr1, int32_arr2, int32_arr_dst, int32_sub_arr_expected, 1, 10, 1);
+
+  int32 int32_mul_arr_expected[10];
+  for(int i=0; i < 10; ++i)
+   int32_mul_arr_expected[i] = saturate_cast_int_float(int32_arr1[i] * int32_arr2[i] * 1.0);
+  test_mul_int32(int32_arr1, int32_arr2, int32_arr_dst, int32_mul_arr_expected, 1, 10, 1, 1.0);
+
+  int32 int32_div_arr_expected[10];
+  for(int i=0; i < 10; ++i)
+   int32_div_arr_expected[i] = saturate_cast_int_float(1.0* int32_arr1[i] / int32_arr2[i]);
+  test_div_int32(int32_arr1, int32_arr2, int32_arr_dst, int32_div_arr_expected, 1, 10, 1, 1.0);
+
+  int32 int32_recip_arr_expected[10];
+  for(int i=0; i < 10; ++i)
+   int32_recip_arr_expected[i] = saturate_cast_int_float(5*(1.0/int32_arr2[i]));
+  test_recip_int32(int32_arr2, int32_arr_dst, int32_recip_arr_expected, 1, 10, 1, 5.0);
+
+
+  // Float tests
+  width = 5;
+  height = 2;
+  step = width; // * sizeof(float);
+  float float_arr1[10] = {-30.001, 0, 3, 4, -1002500, 600, 11000.0700, 800, 10.00000200, 20000};
+  float float_arr2[10] = {100.00, 2, 3, 40, -0.00005, 6, 1.007, 80, 0.00200, 50000000.001};
+  float float_arr_dst[10];
+  float float_arr_expected[10];
+
+
+  for(int i=0; i < 10; ++i)
+   float_arr_expected[i] = float_arr1[i] + float_arr2[i];
+  test_add_float(float_arr1, float_arr2, float_arr_dst, float_arr_expected, step, width, height);
+
+  for(int i=0; i < 10; ++i)
+   float_arr_expected[i] = float_arr1[i] - float_arr2[i];
+  test_sub_float(float_arr1, float_arr2, float_arr_dst, float_arr_expected, step, width, height);
+
+  for(int i=0; i < 10; ++i)
+   float_arr_expected[i] = float_arr1[i] * float_arr2[i];
+  test_mul_float(float_arr1, float_arr2, float_arr_dst, float_arr_expected, step, width, height, 1.0);
+
+  float scale = 3.5;
+  for(int i=0; i < 10; ++i) {
+    float_arr_expected[i] = (scale * float_arr1[i] / float_arr2[i]);
+  }
+  test_div_float(float_arr1, float_arr2, float_arr_dst, float_arr_expected, step, width, height, scale);
+
+  for(int i=0; i < 10; ++i)
+   float_arr_expected[i] = 5*(1.0/float_arr2[i]);
+  test_recip_float(float_arr2, float_arr_dst, float_arr_expected, step, width, height, 5.0);
 
 
   return 0;

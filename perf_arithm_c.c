@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include "cdefs.h"
-#include "arithm_core_c.hpp"
 #include <stdlib.h>
-
+#include "arithm_core_c.c"
 
 #include <time.h>
 #include <sys/time.h>
@@ -102,7 +101,6 @@ MAKE_PERF_MULDIV(short, div)
 MAKE_PERF_RECIP(short)
 MAKE_PERF_ADD_WEIGHTED(short)
 
-
 MAKE_PERF_ADDSUB(int32, add)
 MAKE_PERF_ADDSUB(int32, sub)
 MAKE_PERF_MULDIV(int32, mul)
@@ -119,7 +117,7 @@ MAKE_PERF_ADD_WEIGHTED(float)
 
 
 #define MAKE_RANDOM_DATA(T) \
-  void get_random_array_##T(struct TestImage* ts, int width, int height, T max) {\
+  void get_random_array_##T(struct TestImage* ts, int width, int height, int32 max) {\
     T* data = (T*)malloc(sizeof(T)*width*height);\
     for (int y = 0; y<height*width; y++)\
         data[y] = (T)(rand() % max);\
@@ -133,17 +131,8 @@ MAKE_PERF_ADD_WEIGHTED(float)
 MAKE_RANDOM_DATA(uchar)
 MAKE_RANDOM_DATA(short)
 MAKE_RANDOM_DATA(int32)
+MAKE_RANDOM_DATA(float)
 
-void get_random_array_float(struct TestImage* ts, int width, int height) {
-  float* data = (float*)malloc(sizeof(float)*width*height);
-  for (int y = 0; y<height*width; y++)
-      data[y] = (float)rand()/(float)(RAND_MAX);
-  ts->data = data;
-  ts->width = width;
-  ts->height = height;
-  ts->elemSize = sizeof(float);
-  return;
-}
 
 void loadPGMImage(char * path, struct TestImage* ts) {
   //pgm file contains width, height value itself.
@@ -152,7 +141,6 @@ void loadPGMImage(char * path, struct TestImage* ts) {
   FILE* in = fopen(path, "rb");
   // Declare pointer of char* as amount of width*height.
   uchar* bytes;
-
 	//Read width and height
 	fscanf(in, "%*[^\n]\n%d %d\n%*[^\n]\n", &width, &height);
 
@@ -175,9 +163,7 @@ void loadPGMImage(char * path, struct TestImage* ts) {
 
 int main() {
 
-  int step = 1;
-
-
+  size_t step = 1;
   // Uchar tests
   struct TestImage input_img1, input_img2, dst_img;
   loadPGMImage("./raw/mandrill.pgm", &input_img1);
@@ -190,13 +176,11 @@ int main() {
   perf_div_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width, dst_img.height, 2.5);
   perf_recip_uchar(input_img1.data, dst_img.data, dst_img.width, step, dst_img.height, 2.0);
 
-
   // short tests
   struct TestImage short_img1, short_img2, short_dst_img;
   get_random_array_short(&short_img1, 1000, 2000, (2<<15)-1);
   get_random_array_short(&short_img2, 1000, 2000, (2<<15)-1);
   get_random_array_short(&short_dst_img, 1000, 2000, (2<<15)-1);
-
   perf_add_short(short_img1.data, short_img2.data, short_dst_img.data, step, short_dst_img.width, short_dst_img.height);
   perf_sub_short(short_img1.data, short_img2.data, short_dst_img.data, step, short_dst_img.width, short_dst_img.height);
   perf_mul_short(short_img1.data, short_img2.data, short_dst_img.data, step, short_dst_img.width, short_dst_img.height, 1.0);
@@ -218,16 +202,15 @@ int main() {
 
   // Float tests
   struct TestImage float_img1, float_img2, float_dst_img;
-  get_random_array_float(&float_img1, 10000, 2000);
-  get_random_array_float(&float_img2, 10000, 2000);
-  get_random_array_float(&float_dst_img, 10000, 2000);
+  get_random_array_float(&float_img1, 1000, 2000, (2<<31)-1);
+  get_random_array_float(&float_img2, 1000, 2000, (2<<31)-1);
+  get_random_array_float(&float_dst_img, 1000, 2000, (2<<31)-1);
   perf_add_float(float_img1.data, float_img2.data, float_dst_img.data, step, float_dst_img.width, float_dst_img.height);
   perf_sub_float(float_img1.data, float_img2.data, float_dst_img.data, step, float_dst_img.width, float_dst_img.height);
   perf_mul_float(float_img1.data, float_img2.data, float_dst_img.data, step, float_dst_img.width, float_dst_img.height, 1.0);
   perf_mul_float(float_img1.data, float_img2.data, float_dst_img.data, step, float_dst_img.width, float_dst_img.height, 2.0);
   perf_div_float(float_img1.data, float_img2.data, float_dst_img.data, step, float_dst_img.width, float_dst_img.height, 2.5);
   perf_recip_float(float_img1.data, float_dst_img.data, step, float_dst_img.width, float_dst_img.height, 2.0);
-
 
   return 0;
 }

@@ -5,7 +5,7 @@
  *                  different version of add operations            *
  ******************************************************************/
 
-int add_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2,
+void add_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2,
                   uchar *dst, size_t step, int width, int height) {
 
 
@@ -30,10 +30,9 @@ int add_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2,
     for (; x < width; x++)
       dst[x] = saturate_cast_uchar_ushort(src1[x] + src2[x]);
   }
-  return 0;
 }
 
-int add_schar(schar *src1, size_t step1, schar *src2, size_t step2,
+void add_schar(schar *src1, size_t step1, schar *src2, size_t step2,
                   schar *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (schar *)((const uchar *)src1 + step1),
@@ -57,10 +56,9 @@ int add_schar(schar *src1, size_t step1, schar *src2, size_t step2,
     for (; x < width; x++)
       dst[x] = saturate_cast_schar_short(src1[x] + src2[x]);
   }
-  return 0;
 }
 
-int add_short(short *src1, size_t step1, short *src2, size_t step2,
+void add_short(short *src1, size_t step1, short *src2, size_t step2,
                   short *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (short *)((const uchar *)src1 + step1),
@@ -84,10 +82,9 @@ int add_short(short *src1, size_t step1, short *src2, size_t step2,
     for (; x < width; x++)
       dst[x] = saturate_cast_short_int(src1[x] + src2[x]);
   }
-  return 0;
 }
 
-int add_int32(int *src1, size_t step1, int *src2, size_t step2,
+void add_int32(int *src1, size_t step1, int *src2, size_t step2,
                   int *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (int *)((const uchar *)src1 + step1),
@@ -113,12 +110,12 @@ int add_int32(int *src1, size_t step1, int *src2, size_t step2,
   }
 }
 
-float add_float(float *src1, size_t step1, float *src2, size_t step2,
+void add_float(float *src1, size_t step1, float *src2, size_t step2,
                   float *dst, size_t step, float width, float height) {
 
-  for (; height--; src1 = (float *)((const uchar *)src1 + step1),
-                   src2 = (float *)((const uchar *)src2 + step2),
-                   dst = (float *)((uchar *)dst + step)) {
+  for (; height--; src1 = (float *)(src1 + step1),
+                   src2 = (float *)(src2 + step2),
+                   dst = (float *)(dst + step)) {
     int x = 0;
 
 #if CV_ENABLE_UNROLLED
@@ -143,7 +140,7 @@ float add_float(float *src1, size_t step1, float *src2, size_t step2,
  *                  different version of sub operations            *
  ******************************************************************/
 
-uchar sub_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2,
+void sub_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2,
                   uchar *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (uchar *)((const uchar *)src1 + step1),
@@ -169,7 +166,7 @@ uchar sub_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2,
   }
 }
 
-schar sub_schar(schar *src1, size_t step1, schar *src2, size_t step2,
+void sub_schar(schar *src1, size_t step1, schar *src2, size_t step2,
                   schar *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (schar *)((const uchar *)src1 + step1),
@@ -195,7 +192,7 @@ schar sub_schar(schar *src1, size_t step1, schar *src2, size_t step2,
   }
 }
 
-short sub_short(short *src1, size_t step1, short *src2, size_t step2,
+void sub_short(short *src1, size_t step1, short *src2, size_t step2,
                   short *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (short *)((const uchar *)src1 + step1),
@@ -221,7 +218,7 @@ short sub_short(short *src1, size_t step1, short *src2, size_t step2,
   }
 }
 
-int sub_int32(int *src1, size_t step1, int *src2, size_t step2,
+void sub_int32(int *src1, size_t step1, int *src2, size_t step2,
                   int *dst, size_t step, int width, int height) {
 
   for (; height--; src1 = (int *)((const uchar *)src1 + step1),
@@ -247,12 +244,12 @@ int sub_int32(int *src1, size_t step1, int *src2, size_t step2,
   }
 }
 
-float sub_float(float *src1, size_t step1, float *src2, size_t step2,
+void sub_float(float *src1, size_t step1, float *src2, size_t step2,
                   float *dst, size_t step, float width, float height) {
 
-  for (; height--; src1 = (float *)((const uchar *)src1 + step1),
-                   src2 = (float *)((const uchar *)src2 + step2),
-                   dst = (float *)((uchar *)dst + step)) {
+  for (; height--; src1 = (float *)(src1 + step1),
+                   src2 = (float *)(src2 + step2),
+                   dst = (float *)(dst + step)) {
     int x = 0;
 
 #if CV_ENABLE_UNROLLED
@@ -280,8 +277,8 @@ float sub_float(float *src1, size_t step1, float *src2, size_t step2,
 void cmp_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2, uchar *dst,
      size_t step, int width, int height, int code) {
 
-    step1 /= sizeof(src1[0]);
-    step2 /= sizeof(src2[0]);
+    // step1 /= sizeof(src1[0]);
+    // step2 /= sizeof(src2[0]);
 
     if( code == CMP_GE || code == CMP_LT )
     {
@@ -333,14 +330,13 @@ void cmp_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2, uchar *dst,
                 dst[x] = (uchar)(-(src1[x] == src2[x]) ^ m);
         }
     }
-
 }
 
 void cmp_schar(schar *src1, size_t step1, schar *src2, size_t step2, uchar *dst,
      size_t step, int width, int height, int code) {
 
-    step1 /= sizeof(src1[0]);
-    step2 /= sizeof(src2[0]);
+    // step1 /= sizeof(src1[0]);
+    // step2 /= sizeof(src2[0]);
 
     if( code == CMP_GE || code == CMP_LT )
     {
@@ -393,14 +389,13 @@ void cmp_schar(schar *src1, size_t step1, schar *src2, size_t step2, uchar *dst,
                 dst[x] = (uchar)(-(src1[x] == src2[x]) ^ m);
         }
     }
-
 }
 
 void cmp_short(short *src1, size_t step1, short *src2, size_t step2, uchar *dst,
      size_t step, int width, int height, int code) {
 
-    step1 /= sizeof(src1[0]);
-    step2 /= sizeof(src2[0]);
+    // step1 /= sizeof(src1[0]);
+    // step2 /= sizeof(src2[0]);
 
     if( code == CMP_GE || code == CMP_LT )
     {
@@ -453,14 +448,13 @@ void cmp_short(short *src1, size_t step1, short *src2, size_t step2, uchar *dst,
                 dst[x] = (uchar)(-(src1[x] == src2[x]) ^ m);
         }
     }
-
 }
 
 void cmp_int32(int *src1, size_t step1, int *src2, size_t step2, uchar *dst,
      size_t step, int width, int height, int code) {
 
-    step1 /= sizeof(src1[0]);
-    step2 /= sizeof(src2[0]);
+    // step1 /= sizeof(src1[0]);
+    // step2 /= sizeof(src2[0]);
 
     if( code == CMP_GE || code == CMP_LT )
     {
@@ -513,14 +507,13 @@ void cmp_int32(int *src1, size_t step1, int *src2, size_t step2, uchar *dst,
                 dst[x] = (uchar)(-(src1[x] == src2[x]) ^ m);
         }
     }
-
 }
 
 void cmp_float(float *src1, size_t step1, float *src2, size_t step2, uchar *dst,
      size_t step, int width, int height, int code) {
 
-    step1 /= sizeof(src1[0]);
-    step2 /= sizeof(src2[0]);
+    // step1 /= sizeof(src1[0]);
+    // step2 /= sizeof(src2[0]);
 
     if( code == CMP_GE || code == CMP_LT )
     {
@@ -573,7 +566,6 @@ void cmp_float(float *src1, size_t step1, float *src2, size_t step2, uchar *dst,
                 dst[x] = (uchar)(-(src1[x] == src2[x]) ^ m);
         }
     }
-
 }
 
 /*******************************************************************
@@ -582,9 +574,9 @@ void cmp_float(float *src1, size_t step1, float *src2, size_t step2, uchar *dst,
 void mul_uchar(uchar *src1, size_t step1, uchar* src2, size_t step2,
       uchar* dst, size_t step, int width, int height, float scale)
 {
-    step1 /= sizeof(src1[0]);
-    step2 /= sizeof(src2[0]);
-    step /= sizeof(dst[0]);
+    // step1 /= sizeof(src1[0]);
+    // step2 /= sizeof(src2[0]);
+    // step /= sizeof(dst[0]);
 
     if( scale == (float)1. )
     {
@@ -635,9 +627,9 @@ void mul_uchar(uchar *src1, size_t step1, uchar* src2, size_t step2,
 void mul_schar(schar *src1, size_t step1, schar* src2, size_t step2,
       schar* dst, size_t step, int width, int height, float scale )
 {
-    step1 /= sizeof(src1[0]);
-    step2 /= sizeof(src2[0]);
-    step /= sizeof(dst[0]);
+    // step1 /= sizeof(src1[0]);
+    // step2 /= sizeof(src2[0]);
+    // step /= sizeof(dst[0]);
 
     if( scale == (float)1. )
     {
@@ -688,9 +680,9 @@ void mul_schar(schar *src1, size_t step1, schar* src2, size_t step2,
 void mul_short(short *src1, size_t step1, short* src2, size_t step2,
       short* dst, size_t step, int width, int height, float scale )
 {
-    step1 /= sizeof(src1[0]);
-    step2 /= sizeof(src2[0]);
-    step /= sizeof(dst[0]);
+    // step1 /= sizeof(src1[0]);
+    // step2 /= sizeof(src2[0]);
+    // step /= sizeof(dst[0]);
 
     if( scale == (float)1. )
     {
@@ -741,9 +733,9 @@ void mul_short(short *src1, size_t step1, short* src2, size_t step2,
 void mul_int32(int *src1, size_t step1, int* src2, size_t step2,
       int* dst, size_t step, int width, int height, float scale )
 {
-    step1 /= sizeof(src1[0]);
-    step2 /= sizeof(src2[0]);
-    step /= sizeof(dst[0]);
+    // step1 /= sizeof(src1[0]);
+    // step2 /= sizeof(src2[0]);
+    // step /= sizeof(dst[0]);
 
     if( scale == (float)1. )
     {
@@ -794,9 +786,9 @@ void mul_int32(int *src1, size_t step1, int* src2, size_t step2,
 void mul_float(float *src1, size_t step1, float* src2, size_t step2,
       float* dst, size_t step, int width, int height, float scale )
 {
-    step1 /= sizeof(src1[0]);
-    step2 /= sizeof(src2[0]);
-    step /= sizeof(dst[0]);
+    // step1 /= sizeof(src1[0]);
+    // step2 /= sizeof(src2[0]);
+    // step /= sizeof(dst[0]);
 
     if( scale == (float)1. )
     {
@@ -850,9 +842,9 @@ void mul_float(float *src1, size_t step1, float* src2, size_t step2,
 
 void div_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2, uchar *dst,
                size_t step, int width, int height, double scale) {
-  step1 /= sizeof(src1[0]);
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step1 /= sizeof(src1[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   float scale_f = (float)scale;
 
@@ -866,9 +858,9 @@ void div_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2, uchar *dst,
 
 void div_schar(schar *src1, size_t step1, schar *src2, size_t step2, schar *dst,
                size_t step, int width, int height, double scale) {
-  step1 /= sizeof(src1[0]);
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step1 /= sizeof(src1[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   float scale_f = (float)scale;
 
@@ -882,9 +874,9 @@ void div_schar(schar *src1, size_t step1, schar *src2, size_t step2, schar *dst,
 
 void div_short(short *src1, size_t step1, short *src2, size_t step2, short *dst,
                size_t step, int width, int height, double scale) {
-  step1 /= sizeof(src1[0]);
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step1 /= sizeof(src1[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   float scale_f = (float)scale;
 
@@ -894,13 +886,14 @@ void div_short(short *src1, size_t step1, short *src2, size_t step2, short *dst,
       dst[i] = denom != 0 ? saturate_cast_short_float(num * scale_f / denom) : (short)0;
     }
   }
+
 }
 
 void div_int32(int *src1, size_t step1, int *src2, size_t step2, int *dst,
                size_t step, int width, int height, double scale) {
-  step1 /= sizeof(src1[0]);
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step1 /= sizeof(src1[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   float scale_f = (float)scale;
 
@@ -912,11 +905,11 @@ void div_int32(int *src1, size_t step1, int *src2, size_t step2, int *dst,
   }
 }
 
-void div_float(float *src1, size_t step1, short *src2, size_t step2, short *dst,
+void div_float(float *src1, size_t step1, float *src2, size_t step2, float *dst,
                size_t step, int width, int height, double scale) {
-  step1 /= sizeof(src1[0]);
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step1 /= sizeof(src1[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   float scale_f = (float)scale;
 
@@ -933,8 +926,8 @@ void div_float(float *src1, size_t step1, short *src2, size_t step2, short *dst,
  ******************************************************************/
 void recip_uchar(uchar *src2, size_t step2, uchar *dst, size_t step, int width,
              int height, double scale) {
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   float scale_f = (float)scale;
 
@@ -948,8 +941,8 @@ void recip_uchar(uchar *src2, size_t step2, uchar *dst, size_t step, int width,
 
 void recip_schar(schar *src2, size_t step2, schar *dst, size_t step, int width,
              int height, double scale) {
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   float scale_f = (float)scale;
 
@@ -963,8 +956,8 @@ void recip_schar(schar *src2, size_t step2, schar *dst, size_t step, int width,
 
 void recip_short(short *src2, size_t step2, short *dst, size_t step, int width,
              int height, double scale) {
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   float scale_f = (float)scale;
 
@@ -978,8 +971,8 @@ void recip_short(short *src2, size_t step2, short *dst, size_t step, int width,
 
 void recip_int32(int *src2, size_t step2, int *dst, size_t step, int width,
              int height, double scale) {
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   float scale_f = (float)scale;
 
@@ -993,8 +986,8 @@ void recip_int32(int *src2, size_t step2, int *dst, size_t step, int width,
 
 void recip_float(float *src2, size_t step2, float *dst, size_t step, int width,
              int height, double scale) {
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   float scale_f = (float)scale;
 
@@ -1013,9 +1006,9 @@ void addWeighted_uchar(uchar *src1, size_t step1, uchar *src2, size_t step2, uch
 
 	double *scalars = (double *)_scalars;
   float alpha = (float)scalars[0], beta = (float)scalars[1], gamma = (float)scalars[2];
-  step1 /= sizeof(src1[0]);
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step1 /= sizeof(src1[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   for (; height--; src1 += step1, src2 += step2, dst += step) {
     int x = 0;
@@ -1042,9 +1035,9 @@ void addWeighted_schar(schar *src1, size_t step1, schar *src2, size_t step2, sch
 
 	double *scalars = (double *)_scalars;
   float alpha = (float)scalars[0], beta = (float)scalars[1], gamma = (float)scalars[2];
-  step1 /= sizeof(src1[0]);
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step1 /= sizeof(src1[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   for (; height--; src1 += step1, src2 += step2, dst += step) {
     int x = 0;
@@ -1071,9 +1064,9 @@ void addWeighted_short(short *src1, size_t step1, short *src2, size_t step2, sho
 
 	double *scalars = (double *)_scalars;
   float alpha = (float)scalars[0], beta = (float)scalars[1], gamma = (float)scalars[2];
-  step1 /= sizeof(src1[0]);
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step1 /= sizeof(src1[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   for (; height--; src1 += step1, src2 += step2, dst += step) {
     int x = 0;
@@ -1100,9 +1093,9 @@ void addWeighted_int32(int *src1, size_t step1, int *src2, size_t step2, int *ds
 
 	double *scalars = (double *)_scalars;
   float alpha = (float)scalars[0], beta = (float)scalars[1], gamma = (float)scalars[2];
-  step1 /= sizeof(src1[0]);
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step1 /= sizeof(src1[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   for (; height--; src1 += step1, src2 += step2, dst += step) {
     int x = 0;
@@ -1129,9 +1122,9 @@ void addWeighted_float(float *src1, size_t step1, float *src2, size_t step2, flo
 
 	double *scalars = (double *)_scalars;
   float alpha = (float)scalars[0], beta = (float)scalars[1], gamma = (float)scalars[2];
-  step1 /= sizeof(src1[0]);
-  step2 /= sizeof(src2[0]);
-  step /= sizeof(dst[0]);
+  // step1 /= sizeof(src1[0]);
+  // step2 /= sizeof(src2[0]);
+  // step /= sizeof(dst[0]);
 
   for (; height--; src1 += step1, src2 += step2, dst += step) {
     int x = 0;
