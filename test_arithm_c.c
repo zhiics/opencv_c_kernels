@@ -42,16 +42,6 @@ MAKE_ASSERT_EQ(float)
                     return ret;\
                 }
 
-#define MAKE_TEST_MUL(T) \
-  int test_mul_##T(T* src1, T *src2, \
-                    T *dst, T *expected, size_t step, int width, int height, float scale) { \
-                    mul_##T(src1, step, src2, step, dst, step, width, height, scale); \
-                    int ret = assert_eq_##T(dst, expected, width*height);\
-                    if (ret ==0 )  printf("Testing mul for type %s was succesfull.\n", #T); \
-                    else   printf("Testing mul for type %s failed.\n", #T); \
-                    return ret;\
-                }
-
 #define MAKE_TEST_RECIP(T) \
   int test_recip_##T(T* src1, \
                     T *dst, T *expected, size_t step, int width, int height, float scale) { \
