@@ -10,21 +10,23 @@
 
 #define N 256
 
-void thresh_8u(Mat *_src, Mat *_dst, uchar thresh, uchar maxval, int type) {
-  Size roi = _src->size;
-  roi.width *= _src->channels;
-  size_t src_step = _src->step;
-  size_t dst_step = _dst->step;
+void thresh_uchar(unsigned char *_src, unsigned char *_dst, int width, int height, int step, uchar thresh, uchar maxval, int type, bool isContinuous) {
+  Size roi;
+  roi.width = width;
+  roi.height = height;
+  
+  size_t src_step = step;
+  size_t dst_step = step;
 
-  if (_src->isContinuous && _dst->isContinuous) {
+  if (isContinuous) {
     roi.width *= roi.height;
     roi.height = 1;
     src_step = dst_step = roi.width;
   }
 
   int j = 0;
-  uchar *src = _src->uchar_ptr;
-  uchar *dst = _dst->uchar_ptr;
+  uchar *src = _src;
+  uchar *dst = _dst;
 
   int j_scalar = j;
   if (j_scalar < roi.width) {
@@ -64,8 +66,7 @@ void thresh_8u(Mat *_src, Mat *_dst, uchar thresh, uchar maxval, int type) {
       break;
     }
 
-    src = _src->uchar_ptr;
-    dst = _dst->uchar_ptr;
+  
     for (int i = 0; i < roi.height; i++, src += src_step, dst += dst_step) {
       j = j_scalar;
 #if CV_ENABLE_UNROLLED
@@ -89,7 +90,7 @@ void thresh_8u(Mat *_src, Mat *_dst, uchar thresh, uchar maxval, int type) {
   }
 }
 
-void thresh_16s(Mat *_src, Mat *_dst, short thresh, short maxval, int type) {
+void thresh_short(Mat *_src, Mat *_dst, short thresh, short maxval, int type) {
   int i, j;
   Size roi = _src->size;
   roi.width *= _src->channels;
@@ -150,7 +151,7 @@ void thresh_16s(Mat *_src, Mat *_dst, short thresh, short maxval, int type) {
   }
 }
 
-void thresh_32f(Mat *_src, Mat *_dst, float thresh, float maxval, int type) {
+void thresh_float(Mat *_src, Mat *_dst, float thresh, float maxval, int type) {
   int i, j;
   Size roi = _src->size;
   roi.width *= _src->channels;
@@ -210,7 +211,7 @@ void thresh_32f(Mat *_src, Mat *_dst, float thresh, float maxval, int type) {
   }
 }
 
-void thresh_64f(Mat *_src, Mat *_dst, double thresh, double maxval, int type) {
+void thresh_double(Mat *_src, Mat *_dst, double thresh, double maxval, int type) {
   int i, j;
   Size roi = _src->size;
   roi.width *= _src->channels;
@@ -275,10 +276,12 @@ void thresh_64f(Mat *_src, Mat *_dst, double thresh, double maxval, int type) {
   }
 }
 
-double getThreshVal_Otsu_8u(Mat *_src) {
-  Size size = _src->size;
-  int step = _src->step;
-  if (_src->isContinuous) {
+double getThreshVal_Otsu_uchar(unsigned char *_src, int width, int height, int step, bool isContinuous) {
+  Size size;
+  size.width = width;
+  size.height = height;
+
+  if (isContinuous) {
     size.width *= size.height;
     size.height = 1;
     step = size.width;
@@ -286,7 +289,7 @@ double getThreshVal_Otsu_8u(Mat *_src) {
 
   int i, j, h[N] = {0};
   for (i = 0; i < size.height; i++) {
-    uchar *src = _src->uchar_ptr + step * i;
+    uchar *src = _src + step * i;
     j = 0;
 #if CV_ENABLE_UNROLLED
     for (; j <= size.width - 4; j += 4) {
@@ -334,10 +337,13 @@ double getThreshVal_Otsu_8u(Mat *_src) {
   return max_val;
 }
 
-double getThreshVal_Triangle_8u(Mat *_src) {
-  Size size = _src->size;
-  int step = _src->step;
-  if (_src->isContinuous) {
+double getThreshVal_Triangle_uchar(unsigned char *_src, int width, int height, int step, bool isContinuous) {
+  Size size;
+  size.width = width;
+  size.height = height;
+  
+  
+ if (isContinuous) {
     size.width *= size.height;
     size.height = 1;
     step = size.width;
@@ -345,7 +351,7 @@ double getThreshVal_Triangle_8u(Mat *_src) {
 
   int i, j, h[N] = {0};
   for (i = 0; i < size.height; i++) {
-    uchar *src = _src->uchar_ptr + step * i;
+    uchar *src = _src + step * i;
     j = 0;
 #if CV_ENABLE_UNROLLED
     for (; j <= size.width - 4; j += 4) {
@@ -361,6 +367,7 @@ double getThreshVal_Triangle_8u(Mat *_src) {
     for (; j < size.width; j++)
       h[src[j]]++;
   }
+
 
   int left_bound = 0, right_bound = 0, max_ind = 0, max = 0;
   int temp;
