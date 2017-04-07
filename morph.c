@@ -1563,5 +1563,3 @@ void morphfilter_max_double(const uchar **src, uchar *dst, int dststep,
     }
   }
 }
-
-int main() {}

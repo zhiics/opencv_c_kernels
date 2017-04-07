@@ -5,7 +5,7 @@
 
 #include "cdefs.h"
 
-void integral_uchar_int_double(uchar* src, size_t _srcstep, int* sum, size_t _sumstep,
+void integral_uchar_int32_double(uchar* src, size_t _srcstep, int* sum, size_t _sumstep,
                 double* sqsum, size_t _sqsumstep, int* tilted, size_t _tiltedstep,
                 int width, int height, int cn )
 {
@@ -163,7 +163,7 @@ void integral_uchar_int_double(uchar* src, size_t _srcstep, int* sum, size_t _su
     }
 }
 
-void integral_uchar_int_float(uchar* src, size_t _srcstep, int* sum, size_t _sumstep,
+void integral_uchar_int32_float(uchar* src, size_t _srcstep, int* sum, size_t _sumstep,
                 float* sqsum, size_t _sqsumstep, int* tilted, size_t _tiltedstep,
                 int width, int height, int cn )
 {
@@ -321,7 +321,7 @@ void integral_uchar_int_float(uchar* src, size_t _srcstep, int* sum, size_t _sum
     }
 }
 
-void integral_uchar_int_int(uchar* src, size_t _srcstep, int* sum, size_t _sumstep,
+void integral_uchar_int32_int32(uchar* src, size_t _srcstep, int* sum, size_t _sumstep,
                 int* sqsum, size_t _sqsumstep, int* tilted, size_t _tiltedstep,
                 int width, int height, int cn )
 {
