@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "cdefs.h"
 #include <stdlib.h>
-
+#include <malloc.h>
 
 #include <time.h>
 
@@ -17,7 +17,7 @@
 #include "arithm_core_c.c"
 #include "morph.c"
 #include "integral.c"
-
+#include "thresh.c"
 
 struct TestImage {
   uchar * data;
@@ -65,6 +65,17 @@ void getTime(struct timespec* ts) {
                     return;\
                 }
 
+#define MAKE_PERF_CMP(T, F) \
+  void perf_##F##_##T(T* src1, T *src2, \
+                    T *dst, size_t step, int width, int height, int code) { \
+                    struct timespec t1, t2;\
+                    getTime(&t1);\
+                    F##_##T(src1, step, src2, step, dst, step, width, height, code); \
+                    getTime(&t2);\
+                    printf("Test %s for type %s took %lu nanoseconds.\n", #F, #T, t2.tv_nsec - t1.tv_nsec); \
+                    return;\
+                }
+
 #define MAKE_PERF_RECIP(T) \
   void perf_recip_##T(T* src1, \
                     T *dst, size_t step, int width, int height, float scale) { \
@@ -77,7 +88,8 @@ void getTime(struct timespec* ts) {
                 }
 #define MAKE_PERF_ADD_WEIGHTED(T) \
   void perf_addWeighted_##T(T* src1, T *src2, \
-                    T *dst, size_t step, int width, int height, void *scalars) { \
+                    T *dst, size_t step, int width, int height) { \
+										double scalars[3] = {1.5, 2.0, 2.5};\
                     struct timespec t1, t2;\
                     getTime(&t1);\
                     addWeighted_##T(src1, step, src2, step, dst, step, width, height, scalars); \
@@ -97,6 +109,32 @@ void getTime(struct timespec* ts) {
                                      width,  height,  cn); \
                     getTime(&t2);\
                     printf("Testing Integral for type %s,%s,%s took %lu nanoseconds.\n", #T1, #T2, #T3, t2.tv_nsec - t1.tv_nsec); \
+                    return;\
+                }
+
+#define MAKE_PERF_THRESH(T) \
+void perf_thresh_##T(T* src,T* dst, int width, int height, int step, uchar thresh_val, uchar max_val, int type) { \
+                    struct timespec t1, t2;\
+                    getTime(&t1);\
+                    thresh_##T(src, dst, width, height, step, thresh_val, max_val, type, true); \
+                    getTime(&t2);\
+                    printf("Testing thresh for type %s took %lu nanoseconds.\n", #T, t2.tv_nsec - t1.tv_nsec); \
+                    return;\
+                }\
+double perf_threshval_triangle_##T(T* src,int width, int height, int step) { \
+                    struct timespec t1, t2;\
+                    getTime(&t1);\
+                    double x = getThreshVal_Triangle_##T(src, width, height, step, true);  \
+                    getTime(&t2);\
+                    printf("Testing threshval.triangle for type %s took %lu nanoseconds.\n", #T, t2.tv_nsec - t1.tv_nsec); \
+                    return;\
+                } \
+double perf_threshval_otsu_##T(T* src,int width, int height, int step) { \
+                    struct timespec t1, t2;\
+                    getTime(&t1);\
+                    double x = getThreshVal_Otsu_##T(src, width, height, step, true);  \
+                    getTime(&t2);\
+                    printf("Testing threshval.otsu for type %s took %lu nanoseconds.\n", #T, t2.tv_nsec - t1.tv_nsec); \
                     return;\
                 }
 
@@ -123,13 +161,21 @@ MAKE_PERF_ADDSUB(uchar, add)
 MAKE_PERF_ADDSUB(uchar, sub)
 MAKE_PERF_MULDIV(uchar, mul)
 MAKE_PERF_MULDIV(uchar, div)
+MAKE_PERF_CMP(uchar, cmp)
 MAKE_PERF_RECIP(uchar)
 MAKE_PERF_ADD_WEIGHTED(uchar)
+
+MAKE_PERF_INTEGRAL(uchar, int32, float)
+MAKE_PERF_INTEGRAL(uchar, int32, double)
+
+MAKE_PERF_MORPH(uchar)
+MAKE_PERF_THRESH(uchar)
 
 MAKE_PERF_ADDSUB(schar, add)
 MAKE_PERF_ADDSUB(schar, sub)
 MAKE_PERF_MULDIV(schar, mul)
 MAKE_PERF_MULDIV(schar, div)
+MAKE_PERF_CMP(schar, cmp)
 MAKE_PERF_RECIP(schar)
 MAKE_PERF_ADD_WEIGHTED(schar)
 
@@ -137,6 +183,7 @@ MAKE_PERF_ADDSUB(short, add)
 MAKE_PERF_ADDSUB(short, sub)
 MAKE_PERF_MULDIV(short, mul)
 MAKE_PERF_MULDIV(short, div)
+MAKE_PERF_CMP(short, cmp)
 MAKE_PERF_RECIP(short)
 MAKE_PERF_ADD_WEIGHTED(short)
 
@@ -144,6 +191,7 @@ MAKE_PERF_ADDSUB(int32, add)
 MAKE_PERF_ADDSUB(int32, sub)
 MAKE_PERF_MULDIV(int32, mul)
 MAKE_PERF_MULDIV(int32, div)
+MAKE_PERF_CMP(int32, cmp)
 MAKE_PERF_RECIP(int32)
 MAKE_PERF_ADD_WEIGHTED(int32)
 
@@ -151,18 +199,14 @@ MAKE_PERF_ADDSUB(float, add)
 MAKE_PERF_ADDSUB(float, sub)
 MAKE_PERF_MULDIV(float, mul)
 MAKE_PERF_MULDIV(float, div)
+MAKE_PERF_CMP(float, cmp)
 MAKE_PERF_RECIP(float)
 MAKE_PERF_ADD_WEIGHTED(float)
 
 
-MAKE_PERF_INTEGRAL(uchar, int32, float)
-MAKE_PERF_INTEGRAL(uchar, int32, double)
-
-
-MAKE_PERF_MORPH(uchar)
-
 #define MAKE_RANDOM_DATA(T) \
   void get_random_array_##T(struct TestImage* ts, int width, int height, int32 max) {\
+		mallopt(M_MMAP_MAX, 0);\
     T* data = (T*)malloc(sizeof(T)*width*height);\
     for (int y = 0; y<height*width; y++)\
         data[y] = (T)(rand() % max);\
@@ -179,6 +223,7 @@ MAKE_RANDOM_DATA(int32)
 MAKE_RANDOM_DATA(float)
 
 void allocateImage(int width, int height, int elemSize, struct TestImage* ts) {
+	mallopt(M_MMAP_MAX, 0);
   ts->width = width;
   ts->height = height;
   ts->elemSize = elemSize;
@@ -199,6 +244,7 @@ void loadPGMImage(char * path, struct TestImage* ts) {
 	//Read width and height
 	fscanf(in, "%*[^\n]\n%d %d\n%*[^\n]\n", &width, &height);
 
+	mallopt(M_MMAP_MAX, 0);
 	bytes = (uchar*)malloc(width*height);
 
 	//Fill bytes with pixel values
@@ -235,9 +281,12 @@ int main() {
 
   size_t step = 1;
   int ksize = 5;
+
   // Uchar (UHD) tests
   struct TestImage input_img1, input_img2, dst_img;
   struct TestImage sum_img, sqsum_img, tilted_img;
+
+#ifdef SMALL
   loadPGMImage("./raw/256x256/clock.pgm", &input_img1);
   loadPGMImage("./raw/256x256/clock.pgm", &input_img2);
   allocateImage(input_img1.width, input_img1.height, 1, &dst_img);
@@ -252,7 +301,14 @@ int main() {
   perf_mul_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 1.0);
   perf_mul_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 2.0);
   perf_div_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 2.5);
+  perf_div_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 2.5);
+  perf_cmp_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 1);
+  perf_cmp_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 0);
+  perf_addWeighted_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1);
   perf_recip_uchar(input_img1.data, dst_img.data, step, dst_img.width*dst_img.height,1, 2.0);
+	perf_thresh_uchar(input_img1.data, dst_img.data, dst_img.width, dst_img.height, step,  100, 255, 0);
+  perf_threshval_triangle_uchar(input_img1.data, input_img1.width, input_img1.height, 1);  
+  perf_threshval_otsu_uchar(input_img1.data, input_img1.width, input_img1.height, 1);  
   deallocateImage(&dst_img);
 
 
@@ -265,9 +321,10 @@ int main() {
   deallocateImage(&sum_img);
   deallocateImage(&tilted_img);
   deallocateImage(&sqsum_img);  
+#endif
 
 
-
+#ifdef MEDIUM
   loadPGMImage("./raw/512x512/mandrill.pgm", &input_img1);
   loadPGMImage("./raw/512x512/mandrill.pgm", &input_img2);
   loadPGMImage("./raw/512x512/mandrill.pgm", &dst_img);
@@ -279,7 +336,13 @@ int main() {
   perf_mul_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 1.0);
   perf_mul_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 2.0);
   perf_div_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 2.5);
+  perf_cmp_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 1);
+  perf_cmp_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 0);
+  perf_addWeighted_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1);
   perf_recip_uchar(input_img1.data, dst_img.data, step, dst_img.width*dst_img.height,1, 2.0);
+	perf_thresh_uchar(input_img1.data, dst_img.data, dst_img.width, dst_img.height, step,  100, 255, 0);
+  perf_threshval_otsu_uchar(input_img1.data, input_img1.width, input_img1.height, 1);   
+  perf_threshval_triangle_uchar(input_img1.data, input_img1.width, input_img1.height, 1);
   deallocateImage(&dst_img);
 
 
@@ -292,12 +355,10 @@ int main() {
   deallocateImage(&sum_img);
   deallocateImage(&tilted_img);
   deallocateImage(&sqsum_img);  
+#endif
 
 
-
-
-
-
+#ifdef LARGE
   loadPGMImage("./raw/1024x1024/pirate.pgm", &input_img1);
   loadPGMImage("./raw/1024x1024/pirate.pgm", &input_img2);
   loadPGMImage("./raw/1024x1024/pirate.pgm", &dst_img);
@@ -310,7 +371,13 @@ int main() {
   perf_mul_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 1.0);
   perf_mul_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 2.0);
   perf_div_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 2.5);
+  perf_cmp_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 1);
+  perf_cmp_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 0);
+  perf_addWeighted_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1);
   perf_recip_uchar(input_img1.data, dst_img.data, step, dst_img.width*dst_img.height,1, 2.0);
+	perf_thresh_uchar(input_img1.data, dst_img.data, dst_img.width, dst_img.height, step,  100, 255, 0);
+  perf_threshval_triangle_uchar(input_img1.data, input_img1.width, input_img1.height, 1);  
+  perf_threshval_otsu_uchar(input_img1.data, input_img1.width, input_img1.height, 1);
   deallocateImage(&dst_img);
 
 
@@ -323,9 +390,9 @@ int main() {
   deallocateImage(&sum_img);
   deallocateImage(&tilted_img);
   deallocateImage(&sqsum_img);  
+#endif
 
-
-
+#ifdef HUGE
   loadPGMImage("./raw/uhd/scarf.pgm", &input_img1);
   loadPGMImage("./raw/uhd/scarf.pgm", &input_img2);
   loadPGMImage("./raw/uhd/scarf.pgm", &dst_img);
@@ -337,7 +404,13 @@ int main() {
   perf_mul_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 1.0);
   perf_mul_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 2.0);
   perf_div_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 2.5);
+  perf_cmp_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 1);
+  perf_cmp_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 0);
+  perf_addWeighted_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1);
   perf_recip_uchar(input_img1.data, dst_img.data, step, dst_img.width*dst_img.height,1, 2.0);
+	perf_thresh_uchar(input_img1.data, dst_img.data, dst_img.width, dst_img.height, step,  100, 255, 0);
+  perf_threshval_otsu_uchar(input_img1.data, input_img1.width, input_img1.height, 1);    
+  perf_threshval_triangle_uchar(input_img1.data, input_img1.width, input_img1.height, 1);
   deallocateImage(&dst_img);
 
 
@@ -350,8 +423,7 @@ int main() {
   deallocateImage(&sum_img);
   deallocateImage(&tilted_img);
   deallocateImage(&sqsum_img);  
-
-
+#endif
 
 
   //
