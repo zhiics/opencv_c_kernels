@@ -258,4 +258,12 @@ enum ThresholdTypes {
       16 //!< flag, use Triangle algorithm to choose the optimal threshold value
 };
 
+enum DepthFormat { U8, S16, U16, S32 };
+
+enum ColorFormat { RGB, RGBX, NV12, NV21, IYUV, YUYV, YUV4, UYVY, GRAYSCALE };
+
+enum Channel { R, G, B, Y, U, V };
+
+enum StorageType { PLANAR, INTERLEAVED };
+
 #endif
