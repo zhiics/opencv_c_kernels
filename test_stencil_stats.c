@@ -68,9 +68,9 @@ int main() {
                           0, 180, 190, 200, 0,
                           0, 0, 0, 0, 0};
   uchar gaussian3x3_expected[25] = {0, 0, 0, 0, 0,
-                          0, 70, 8, 100, 0,
-                          0, 0, 31, 0, 0,
-                          0, 2, 3, 4, 0,
+                          0, 38, 44, 49, 0,
+                          0, 66, 71, 77, 0,
+                          0, 93, 99, 104, 0,
                           0, 0, 0, 0, 0};
   uchar gaussian5x5_expected[25] = {0, 0, 0, 0, 0,
                           0, 0, 0, 0, 0,
@@ -83,9 +83,9 @@ int main() {
                           0, 22, 23, 24, 0,
                           0, 0, 0, 0, 0};
   uchar censusTransform_expected[25] = {0, 0, 0, 0, 0,
-                          0, 12, 13, 14, 0,
-                          0, 70, 80, 90 , 0,
-                          0, 22, 23, 24, 0,
+                          0, 8, 8, 8, 0,
+                          0, 239, 239, 239, 0,
+                          0, 8, 8, 8, 0,
                           0, 0, 0, 0, 0};
 
   test_box3x3(uchar_image, uchar_dst_image, box3x3_expected, 5, 5);
@@ -96,8 +96,8 @@ int main() {
   test_median3x3(uchar_image, uchar_dst_image, median3x3_expected, 5, 5);
   test_censusTransform(uchar_image, uchar_dst_image, censusTransform_expected, 5, 5);
 
-  float expected_mean = 0;
-  float expected_stddev = 0;
+  float expected_mean = 59.8;
+  float expected_stddev = 67.75077;
   test_meanStdDev(uchar_image, 5, 5, expected_mean, expected_stddev);
 
   return 0;

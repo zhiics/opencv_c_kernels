@@ -236,37 +236,36 @@ void censusTransform(unsigned char *input, int width, int height,
       unsigned char center_val = input[index];
       unsigned char current_val = 0;
 
-      if (center_val < input[index - width - 1])
+      if (center_val <= input[index - width - 1])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index - width])
+      if (center_val <= input[index - width])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index - width + 1])
+      if (center_val <= input[index - width + 1])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index - 1])
+      if (center_val <= input[index - 1])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index + 1])
+      if (center_val <= input[index + 1])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index + width - 1])
+      if (center_val <= input[index + width - 1])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index + width])
+      if (center_val <= input[index + width])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index + width + 1])
+      if (center_val <= input[index + width + 1])
         current_val |= 1;
-      current_val >>= 1;
 
       output[index] = current_val;
     }
