@@ -1,12 +1,7 @@
 #include <stdio.h>
 #include "cdefs.h"
+#include "util.h"
 #include "arithm_core_c.c"
-
-// Generate Assertion Functinos
-MAKE_ASSERT_EQ(uchar)
-MAKE_ASSERT_EQ(schar)
-MAKE_ASSERT_EQ(short)
-MAKE_ASSERT_EQ(int32)
 
 #define MAKE_TEST_ADDSUB(T, F) \
   int test_##F##_##T(T* src1, T *src2, \
