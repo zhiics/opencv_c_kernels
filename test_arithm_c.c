@@ -2,25 +2,11 @@
 #include "cdefs.h"
 #include "arithm_core_c.c"
 
-#define MAKE_ASSERT_EQ(T)\
-  int assert_eq_##T(T* arr1, T* arr2, size_t len){\
-    int i;\
-    int ret=0;\
-    for(i = 0; i < len; i = i+1) { \
-      if ((arr1[i]-arr2[i]) > EPSILON || (arr2[i]-arr1[i]) > EPSILON) {\
-        printf("Mismatch at index %d. Got %f, expected %f\n", i, arr1[i], arr2[i]); \
-        ret=-1;\
-      }\
-    }\
-    return ret;\
-  }
-
 // Generate Assertion Functinos
 MAKE_ASSERT_EQ(uchar)
 MAKE_ASSERT_EQ(schar)
 MAKE_ASSERT_EQ(short)
 MAKE_ASSERT_EQ(int32)
-MAKE_ASSERT_EQ(float)
 
 #define MAKE_TEST_ADDSUB(T, F) \
   int test_##F##_##T(T* src1, T *src2, \

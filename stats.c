@@ -52,32 +52,25 @@ void eqHistogram(unsigned char *input, int width, int height,
   }
 }
 
-// stddev is optional
-void mean(unsigned char *input, int width, int height, float* _mean) {
+void meanStdDev(unsigned char *input, int width, int height, float *_mean,
+                float *stddev) {
   int total = width * height;
+  float mean;
 
+  // Pass1 : calculate mean
   unsigned int accum = 0;
   for (int i = 0; i < total; i++) {
     accum += input[i];
   }
-  *_mean = (accum) / (float)total;
-}
-
-void meanStdDev(unsigned char *input, int width, int height, float *_mean,
-                float *stddev) {
-  int total = width * height;
-
-  float __mean;
-  // Pass1 : calculate mean
-  mean(input, width, height, &__mean);
+  mean = (accum) / (float)total;
 
   // Pass2 : calculate standard deviation
-  unsigned int accum = 0;
+  float sdaccum = 0;
   for (int i = 0; i < total; i++) {
-    int diff = *_mean - input[i];
-    accum += (diff * diff);
+    float diff = (float)mean - (float)input[i];
+    sdaccum += (diff * diff);
   }
-  *_mean = __mean;
-  *stddev = sqrt(accum / (float)total);
-}
 
+  *_mean = mean;
+  *stddev = sqrt(sdaccum/(total-1));
+}

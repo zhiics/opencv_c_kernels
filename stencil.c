@@ -1,5 +1,4 @@
-void box3x3(unsigned char *input, int width, int height,
-            unsigned char *output) {
+void box3x3(unsigned char *input, int width, int height, unsigned char *output) {
   for (int y = 1; y < height - 1; y++) {
     for (int x = 1; x < width - 1; x++) {
       unsigned short accum = 0;
@@ -57,16 +56,15 @@ void sobel(unsigned char *input, int width, int height,
   }
 }
 
-void dilate(unsigned char *input, int width, int height,
-            unsigned char *output) {
+void dilate(unsigned char *input, int width, int height, unsigned char *output) {
   for (int y = 1; y < height - 1; y++) {
     for (int x = 1; x < width - 1; x++) {
-      unsigned char max_pixel = 255;
+      unsigned char max_pixel = 0;
 
       for (int j = -1; j <= 1; j++) {
         for (int i = -1; i <= 1; i++) {
           unsigned char data = input[(y + j) * width + x + i];
-          max_pixel = data < max_pixel ? max_pixel : data;
+          max_pixel = data > max_pixel ? data : max_pixel;
         }
       }
       output[y * width + x] = max_pixel;
@@ -74,8 +72,7 @@ void dilate(unsigned char *input, int width, int height,
   }
 }
 
-void gaussian3x3(unsigned char *input, int width, int height,
-                 unsigned char *output) {
+void gaussian3x3(unsigned char *input, int width, int height, unsigned char *output) {
 
   short weight[3][3] = {{1, 2, 1}, {2, 4, 2}, {1, 2, 1}};
 
@@ -95,8 +92,7 @@ void gaussian3x3(unsigned char *input, int width, int height,
   }
 }
 
-void gaussian5x5(unsigned char *input, int width, int height,
-                 unsigned char *output) {
+void gaussian5x5(unsigned char *input, int width, int height, unsigned char *output) {
   short weight[5][5] = {{1, 2, 4, 2, 1},
                         {2, 4, 8, 4, 2},
                         {4, 8, 16, 8, 2},
@@ -119,8 +115,7 @@ void gaussian5x5(unsigned char *input, int width, int height,
   }
 }
 
-void median3x3(unsigned char *input, int width, int height,
-                 unsigned char *output) {
+void median3x3(unsigned char *input, int width, int height, unsigned char *output) {
   unsigned char data[10] = {0};
 
   for (int y = 1; y < height - 1; y++) {
@@ -165,14 +160,13 @@ void median3x3(unsigned char *input, int width, int height,
   }
 }
 
-void integral(unsigned char *input, int width, int height,
-                 unsigned char *output) {
+void integral(unsigned char *input, int width, int height, unsigned char *output) {
   unsigned char data[10] = {0};
 
   for (int y = 1; y < height - 1; y++) {
     for (int x = 1; x < width - 1; x++) {
       unsigned char max_pixel = 255, swap;
-      
+
 			if (data[1] > data[6]) { swap = data[1]; data[1] = data[6]; data[6] = swap; }
       if (data[2] > data[7]) { swap = data[2]; data[2] = data[7]; data[7] = swap; }
       if (data[3] > data[8]) { swap = data[3]; data[3] = data[8]; data[8] = swap; }
@@ -242,40 +236,38 @@ void censusTransform(unsigned char *input, int width, int height,
       unsigned char center_val = input[index];
       unsigned char current_val = 0;
 
-      if (center_val < input[index - width - 1])
+      if (center_val <= input[index - width - 1])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index - width])
+      if (center_val <= input[index - width])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index - width + 1])
+      if (center_val <= input[index - width + 1])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index - 1])
+      if (center_val <= input[index - 1])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index + 1])
+      if (center_val <= input[index + 1])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index + width - 1])
+      if (center_val <= input[index + width - 1])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index + width])
+      if (center_val <= input[index + width])
         current_val |= 1;
-      current_val >>= 1;
+      current_val <<= 1;
 
-      if (center_val < input[index + width + 1])
+      if (center_val <= input[index + width + 1])
         current_val |= 1;
-      current_val >>= 1;
 
       output[index] = current_val;
     }
   }
 }
-
