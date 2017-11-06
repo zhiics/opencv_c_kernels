@@ -3,45 +3,18 @@
 #include <stdio.h>
 #include "cdefs.h"
 #include <stdlib.h>
-#include <malloc.h>
-
-#include <time.h>
-
-#ifdef __APPLE__
-#define HAVE_MACH_TIMER
-#include <mach/clock.h>
-#include <mach/mach.h>
-#include <sys/time.h>
-#endif
+#include "util.h"
 
 #include "arithm_core_c.c"
 #include "morph.c"
 #include "integral.c"
 #include "thresh.c"
 
-struct TestImage {
-  uchar * data;
-  int width;
-  int height;
-  int elemSize;
-};
 
-struct timespec ts;
-
-void getTime(struct timespec* ts) {
-  #ifdef __APPLE__ // OS X does not have clock_gettime, use clock_get_time
-  clock_serv_t cclock;
-  mach_timespec_t mts;
-  host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-  clock_get_time(cclock, &mts);
-  mach_port_deallocate(mach_task_self(), cclock);
-  ts->tv_sec = mts.tv_sec;
-  ts->tv_nsec = mts.tv_nsec;
-  #else
-  clock_gettime(CLOCK_REALTIME, ts);
-  #endif
-}
-
+//#define SMALL 1
+//#define MEDIUM 1
+#define LARGE 1
+//#define HUGE 1
 
 #define MAKE_PERF_ADDSUB(T, F) \
   void perf_##F##_##T(T* src1, T *src2, \
@@ -50,7 +23,8 @@ void getTime(struct timespec* ts) {
                     getTime(&t1);\
                     F##_##T(src1, step, src2, step, dst, step, width, height); \
                     getTime(&t2);\
-                    printf("Test %s for type %s took %lu nanoseconds.\n", #F, #T, t2.tv_nsec - t1.tv_nsec); \
+                    unsigned long duration = (t2.tv_nsec - t1.tv_nsec) + (t2.tv_sec - t1.tv_sec)*1000000000;\
+                    printf("Test %s for type %s took %lu nanoseconds.\n", #F, #T, duration); \
                     return;\
                 }
 
@@ -61,7 +35,8 @@ void getTime(struct timespec* ts) {
                     getTime(&t1);\
                     F##_##T(src1, step, src2, step, dst, step, width, height, scale); \
                     getTime(&t2);\
-                    printf("Test %s for type %s took %lu nanoseconds.\n", #F, #T, t2.tv_nsec - t1.tv_nsec); \
+                    unsigned long duration = (t2.tv_nsec - t1.tv_nsec) + (t2.tv_sec - t1.tv_sec)*1000000000;\
+                    printf("Test %s for type %s took %lu nanoseconds.\n", #F, #T, duration); \
                     return;\
                 }
 
@@ -72,7 +47,8 @@ void getTime(struct timespec* ts) {
                     getTime(&t1);\
                     F##_##T(src1, step, src2, step, dst, step, width, height, code); \
                     getTime(&t2);\
-                    printf("Test %s for type %s took %lu nanoseconds.\n", #F, #T, t2.tv_nsec - t1.tv_nsec); \
+                    unsigned long duration = (t2.tv_nsec - t1.tv_nsec) + (t2.tv_sec - t1.tv_sec)*1000000000;\
+                    printf("Test %s for type %s took %lu nanoseconds.\n", #F, #T, duration); \
                     return;\
                 }
 
@@ -83,7 +59,8 @@ void getTime(struct timespec* ts) {
                     getTime(&t1);\
                     recip_##T(src1, step, dst, step, width, height, scale); \
                     getTime(&t2);\
-                    printf("Testing recip for type %s took %lu nanoseconds.\n", #T, t2.tv_nsec - t1.tv_nsec); \
+                    unsigned long duration = (t2.tv_nsec - t1.tv_nsec) + (t2.tv_sec - t1.tv_sec)*1000000000;\
+                    printf("Testing recip for type %s took %lu nanoseconds.\n", #T, duration); \
                     return;\
                 }
 #define MAKE_PERF_ADD_WEIGHTED(T) \
@@ -94,7 +71,8 @@ void getTime(struct timespec* ts) {
                     getTime(&t1);\
                     addWeighted_##T(src1, step, src2, step, dst, step, width, height, scalars); \
                     getTime(&t2);\
-                    printf("Testing addWeighted for type %s took %lu nanoseconds.\n", #T, t2.tv_nsec - t1.tv_nsec); \
+                    unsigned long duration = (t2.tv_nsec - t1.tv_nsec) + (t2.tv_sec - t1.tv_sec)*1000000000;\
+                    printf("Testing addWeighted for type %s took %lu nanoseconds.\n", #T, duration); \
                     return;\
                 }
 
@@ -108,7 +86,8 @@ void getTime(struct timespec* ts) {
                                     sqsum, s_sqsumstep,  tilted, s_tiltedstep,\
                                      width,  height,  cn); \
                     getTime(&t2);\
-                    printf("Testing Integral for type %s,%s,%s took %lu nanoseconds.\n", #T1, #T2, #T3, t2.tv_nsec - t1.tv_nsec); \
+                    unsigned long duration = (t2.tv_nsec - t1.tv_nsec) + (t2.tv_sec - t1.tv_sec)*1000000000;\
+                    printf("Testing Integral for type %s,%s,%s took %lu nanoseconds.\n", #T1, #T2, #T3, duration); \
                     return;\
                 }
 
@@ -118,7 +97,8 @@ void perf_thresh_##T(T* src,T* dst, int width, int height, int step, uchar thres
                     getTime(&t1);\
                     thresh_##T(src, dst, width, height, step, thresh_val, max_val, type, true); \
                     getTime(&t2);\
-                    printf("Testing thresh for type %s took %lu nanoseconds.\n", #T, t2.tv_nsec - t1.tv_nsec); \
+                    unsigned long duration = (t2.tv_nsec - t1.tv_nsec) + (t2.tv_sec - t1.tv_sec)*1000000000;\
+                    printf("Testing thresh for type %s took %lu nanoseconds.\n", #T, duration); \
                     return;\
                 }\
 double perf_threshval_triangle_##T(T* src,int width, int height, int step) { \
@@ -126,7 +106,8 @@ double perf_threshval_triangle_##T(T* src,int width, int height, int step) { \
                     getTime(&t1);\
                     double x = getThreshVal_Triangle_##T(src, width, height, step, true);  \
                     getTime(&t2);\
-                    printf("Testing threshval.triangle for type %s took %lu nanoseconds.\n", #T, t2.tv_nsec - t1.tv_nsec); \
+                    unsigned long duration = (t2.tv_nsec - t1.tv_nsec) + (t2.tv_sec - t1.tv_sec)*1000000000;\
+                    printf("Testing threshval.triangle for type %s took %lu nanoseconds.\n", #T, duration); \
                     return;\
                 } \
 double perf_threshval_otsu_##T(T* src,int width, int height, int step) { \
@@ -134,7 +115,8 @@ double perf_threshval_otsu_##T(T* src,int width, int height, int step) { \
                     getTime(&t1);\
                     double x = getThreshVal_Otsu_##T(src, width, height, step, true);  \
                     getTime(&t2);\
-                    printf("Testing threshval.otsu for type %s took %lu nanoseconds.\n", #T, t2.tv_nsec - t1.tv_nsec); \
+                    unsigned long duration = (t2.tv_nsec - t1.tv_nsec) + (t2.tv_sec - t1.tv_sec)*1000000000;\
+                    printf("Testing threshval.otsu for type %s took %lu nanoseconds.\n", #T, duration); \
                     return;\
                 }
 
@@ -144,7 +126,8 @@ double perf_threshval_otsu_##T(T* src,int width, int height, int step) { \
                     getTime(&t1);\
                     morphrowfilter_min_##T(src, dst, width, cn, ksize); \
                     getTime(&t2);\
-                    printf("Testing morph.min for type %s took %lu nanoseconds.\n", #T, t2.tv_nsec - t1.tv_nsec); \
+                    unsigned long duration = (t2.tv_nsec - t1.tv_nsec) + (t2.tv_sec - t1.tv_sec)*1000000000;\
+                    printf("Testing morph.min for type %s took %lu nanoseconds.\n", #T, duration); \
                     return;\
                 }\
 void perf_morphrowfilter_max_##T(T* src,T* dst, int width, int cn, int ksize) { \
@@ -152,7 +135,8 @@ void perf_morphrowfilter_max_##T(T* src,T* dst, int width, int cn, int ksize) { 
                     getTime(&t1);\
                     morphrowfilter_max_##T(src, dst, width, cn, ksize); \
                     getTime(&t2);\
-                    printf("Testing morph.max for type %s took %lu nanoseconds.\n", #T, t2.tv_nsec - t1.tv_nsec); \
+                    unsigned long duration = (t2.tv_nsec - t1.tv_nsec) + (t2.tv_sec - t1.tv_sec)*1000000000;\
+                    printf("Testing morph.max for type %s took %lu nanoseconds.\n", #T, duration); \
                     return;\
                 }
 
@@ -204,79 +188,6 @@ MAKE_PERF_RECIP(float)
 MAKE_PERF_ADD_WEIGHTED(float)
 
 
-#define MAKE_RANDOM_DATA(T) \
-  void get_random_array_##T(struct TestImage* ts, int width, int height, int32 max) {\
-		mallopt(M_MMAP_MAX, 0);\
-    T* data = (T*)malloc(sizeof(T)*width*height);\
-    for (int y = 0; y<height*width; y++)\
-        data[y] = (T)(rand() % max);\
-    ts->data = data;\
-    ts->width = width;\
-    ts->height = height;\
-    ts->elemSize = sizeof(T);\
-    return;\
-  }
-
-MAKE_RANDOM_DATA(uchar)
-MAKE_RANDOM_DATA(short)
-MAKE_RANDOM_DATA(int32)
-MAKE_RANDOM_DATA(float)
-
-void allocateImage(int width, int height, int elemSize, struct TestImage* ts) {
-	mallopt(M_MMAP_MAX, 0);
-  ts->width = width;
-  ts->height = height;
-  ts->elemSize = elemSize;
-  ts->data = (uchar*) malloc(width*height*elemSize);
-}
-
-void deallocateImage(struct TestImage * ts) {
-  free(ts->data);
-}
-
-void loadPGMImage(char * path, struct TestImage* ts) {
-  //pgm file contains width, height value itself.
-  int width, height;
-
-  FILE* in = fopen(path, "rb");
-  // Declare pointer of char* as amount of width*height.
-  uchar* bytes;
-	//Read width and height
-	fscanf(in, "%*[^\n]\n%d %d\n%*[^\n]\n", &width, &height);
-
-	mallopt(M_MMAP_MAX, 0);
-	bytes = (uchar*)malloc(width*height);
-
-	//Fill bytes with pixel values
-	for (int y = 0; y<height; y++)
-		for (int x = 0; x<width; x++)
-			fscanf(in, "%c", &bytes[(y*width) + x]);
-
-  ts->data = bytes;
-  ts->width = width;
-  ts->height = height;
-  ts->elemSize = 1;
-  return;
-}
-
-
-void savePGMImage(char * path, struct TestImage* ts) {
-  //pgm file contains width, height value itself.
-  int width, height;
-
-  FILE* out = fopen(path, "wb");
-  // Declare pointer of char* as amount of width*height.
-  uchar* bytes;
-  //Read width and heightl
-  fprintf(out, "P5\n%d %d\n255\n", ts->width, ts->height);
-  //Fill bytes with pixel values
-  for (int y = 0; y<ts->height; y++)
-    for (int x = 0; x<ts->width; x++)
-      fprintf(out, "%c", ts->data[(y*ts->width) + x]);
-
-  return;
-}
-
 int main() {
 
   size_t step = 1;
@@ -307,8 +218,8 @@ int main() {
   perf_addWeighted_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1);
   perf_recip_uchar(input_img1.data, dst_img.data, step, dst_img.width*dst_img.height,1, 2.0);
 	perf_thresh_uchar(input_img1.data, dst_img.data, dst_img.width, dst_img.height, step,  100, 255, 0);
-  perf_threshval_triangle_uchar(input_img1.data, input_img1.width, input_img1.height, 1);  
-  perf_threshval_otsu_uchar(input_img1.data, input_img1.width, input_img1.height, 1);  
+  perf_threshval_triangle_uchar(input_img1.data, input_img1.width, input_img1.height, 1);
+  perf_threshval_otsu_uchar(input_img1.data, input_img1.width, input_img1.height, 1);
   deallocateImage(&dst_img);
 
 
@@ -320,7 +231,7 @@ int main() {
   perf_integral_uchar_int32_float(input_img1.data, input_img1.width*1, sum_img.data, sum_img.width*4, sqsum_img.data, sqsum_img.width*4, tilted_img.data, tilted_img.width , input_img1.width, input_img1.height, 1);
   deallocateImage(&sum_img);
   deallocateImage(&tilted_img);
-  deallocateImage(&sqsum_img);  
+  deallocateImage(&sqsum_img);
 #endif
 
 
@@ -341,7 +252,7 @@ int main() {
   perf_addWeighted_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1);
   perf_recip_uchar(input_img1.data, dst_img.data, step, dst_img.width*dst_img.height,1, 2.0);
 	perf_thresh_uchar(input_img1.data, dst_img.data, dst_img.width, dst_img.height, step,  100, 255, 0);
-  perf_threshval_otsu_uchar(input_img1.data, input_img1.width, input_img1.height, 1);   
+  perf_threshval_otsu_uchar(input_img1.data, input_img1.width, input_img1.height, 1);
   perf_threshval_triangle_uchar(input_img1.data, input_img1.width, input_img1.height, 1);
   deallocateImage(&dst_img);
 
@@ -354,7 +265,7 @@ int main() {
   perf_integral_uchar_int32_float(input_img1.data, input_img1.width*1, sum_img.data, sum_img.width*4, sqsum_img.data, sqsum_img.width*4, tilted_img.data, tilted_img.width , input_img1.width, input_img1.height, 1);
   deallocateImage(&sum_img);
   deallocateImage(&tilted_img);
-  deallocateImage(&sqsum_img);  
+  deallocateImage(&sqsum_img);
 #endif
 
 
@@ -365,7 +276,7 @@ int main() {
   step = 1 * dst_img.width;
   perf_morphrowfilter_min_uchar(input_img1.data, dst_img.data, dst_img.width*dst_img.height, 1, ksize);
   perf_morphrowfilter_max_uchar(input_img1.data, dst_img.data, dst_img.width*dst_img.height, 1, ksize);
- 
+
   perf_add_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.height * dst_img.width, 1);
   perf_sub_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1);
   perf_mul_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1, 1.0);
@@ -376,7 +287,7 @@ int main() {
   perf_addWeighted_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1);
   perf_recip_uchar(input_img1.data, dst_img.data, step, dst_img.width*dst_img.height,1, 2.0);
 	perf_thresh_uchar(input_img1.data, dst_img.data, dst_img.width, dst_img.height, step,  100, 255, 0);
-  perf_threshval_triangle_uchar(input_img1.data, input_img1.width, input_img1.height, 1);  
+  perf_threshval_triangle_uchar(input_img1.data, input_img1.width, input_img1.height, 1);
   perf_threshval_otsu_uchar(input_img1.data, input_img1.width, input_img1.height, 1);
   deallocateImage(&dst_img);
 
@@ -389,7 +300,7 @@ int main() {
   perf_integral_uchar_int32_float(input_img1.data, input_img1.width*1, sum_img.data, sum_img.width*4, sqsum_img.data, sqsum_img.width*4, tilted_img.data, tilted_img.width , input_img1.width, input_img1.height, 1);
   deallocateImage(&sum_img);
   deallocateImage(&tilted_img);
-  deallocateImage(&sqsum_img);  
+  deallocateImage(&sqsum_img);
 #endif
 
 #ifdef HUGE
@@ -409,7 +320,7 @@ int main() {
   perf_addWeighted_uchar(input_img1.data, input_img2.data, dst_img.data, step, dst_img.width*dst_img.height, 1);
   perf_recip_uchar(input_img1.data, dst_img.data, step, dst_img.width*dst_img.height,1, 2.0);
 	perf_thresh_uchar(input_img1.data, dst_img.data, dst_img.width, dst_img.height, step,  100, 255, 0);
-  perf_threshval_otsu_uchar(input_img1.data, input_img1.width, input_img1.height, 1);    
+  perf_threshval_otsu_uchar(input_img1.data, input_img1.width, input_img1.height, 1);
   perf_threshval_triangle_uchar(input_img1.data, input_img1.width, input_img1.height, 1);
   deallocateImage(&dst_img);
 
@@ -422,7 +333,7 @@ int main() {
   perf_integral_uchar_int32_float(input_img1.data, input_img1.width*1, sum_img.data, sum_img.width*4, sqsum_img.data, sqsum_img.width*4, tilted_img.data, tilted_img.width , input_img1.width, input_img1.height, 1);
   deallocateImage(&sum_img);
   deallocateImage(&tilted_img);
-  deallocateImage(&sqsum_img);  
+  deallocateImage(&sqsum_img);
 #endif
 
 

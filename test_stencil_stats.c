@@ -1,13 +1,8 @@
 #include <stdio.h>
 #include "cdefs.h"
+#include "util.h"
 #include "stencil.c"
 #include "stats.c"
-
-
-// Generate Assertion Functinos
-MAKE_ASSERT_EQ(uchar)
-MAKE_ASSERT_EQ(short)
-MAKE_ASSERT_EQ(int32)
 
 #define MAKE_TEST_STENCIL(F) \
   int test_##F(unsigned char* src, \
@@ -18,7 +13,16 @@ MAKE_ASSERT_EQ(int32)
                     if (ret ==0 )  printf("Testing %s was succesfull.\n", #F); \
                     else   printf("Testing %s failed.\n", #F); \
                     return ret;\
-                }
+                }\
+
+// Generate Test Functinos
+MAKE_TEST_STENCIL(box3x3)
+MAKE_TEST_STENCIL(erode)
+MAKE_TEST_STENCIL(dilate)
+MAKE_TEST_STENCIL(gaussian3x3)
+MAKE_TEST_STENCIL(gaussian5x5)
+MAKE_TEST_STENCIL(median3x3)
+MAKE_TEST_STENCIL(censusTransform)
 
 
 void test_meanStdDev(unsigned char *input, int width, int height, float expected_mean, float expected_stddev) {
@@ -30,15 +34,6 @@ void test_meanStdDev(unsigned char *input, int width, int height, float expected
   else   printf("Testing meanStdDev failed.\n");
   return ret;
 }
-
-// Generate Test Functinos
-MAKE_TEST_STENCIL(box3x3)
-MAKE_TEST_STENCIL(erode)
-MAKE_TEST_STENCIL(dilate)
-MAKE_TEST_STENCIL(gaussian3x3)
-MAKE_TEST_STENCIL(gaussian5x5)
-MAKE_TEST_STENCIL(median3x3)
-MAKE_TEST_STENCIL(censusTransform)
 
 int main() {
 

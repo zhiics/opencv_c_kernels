@@ -10,11 +10,16 @@
 #include <math.h>
 #include <stdio.h>
 
+
 #define CV_Error(fmt)                                                          \
   ({                                                                           \
     printf("Error %s:%d: %s\n", __FILE__, __LINE__, fmt);                      \
     exit(1);                                                                   \
   })
+
+
+
+
 
 #define EPSILON 0.000001
 #define false 0
@@ -265,31 +270,5 @@ enum ColorFormat { RGB, RGBX, NV12, NV21, IYUV, YUYV, YUV4, UYVY, GRAYSCALE };
 enum Channel { R, G, B, Y, U, V };
 
 enum StorageType { PLANAR, INTERLEAVED };
-
-#define MAKE_ASSERT_EQ(T)\
-  int assert_eq_##T(T* arr1, T* arr2, size_t len){\
-    int i;\
-    int ret=0;\
-    for(i = 0; i < len; i = i+1) { \
-      if (arr1[i] != arr2[i]) {\
-        printf("Mismatch at index %d. Got %d, expected %d\n", i, (int)arr1[i], (int)arr2[i]); \
-        ret=-1;\
-      }\
-    }\
-    return ret;\
-  }
-
-// Specialize floating point
-int assert_eq_float(float* arr1, float* arr2, size_t len){
-  int i;
-  int ret=0;
-  for(i = 0; i < len; i = i+1) {
-    if ((arr1[i]-arr2[i]) > EPSILON || (arr2[i]-arr1[i]) > EPSILON) {
-      printf("Mismatch at index %d. Got %f, expected %f\n", i, arr1[i], arr2[i]);
-      ret=-1;
-    }
-  }
-  return ret;
-}
 
 #endif
