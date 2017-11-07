@@ -160,44 +160,6 @@ void median3x3(unsigned char *input, int width, int height, unsigned char *outpu
   }
 }
 
-void integral(unsigned char *input, int width, int height, unsigned char *output) {
-  unsigned char data[10] = {0};
-
-  for (int y = 1; y < height - 1; y++) {
-    for (int x = 1; x < width - 1; x++) {
-      unsigned char max_pixel = 255, swap;
-
-			if (data[1] > data[6]) { swap = data[1]; data[1] = data[6]; data[6] = swap; }
-      if (data[2] > data[7]) { swap = data[2]; data[2] = data[7]; data[7] = swap; }
-      if (data[3] > data[8]) { swap = data[3]; data[3] = data[8]; data[8] = swap; }
-      if (data[4] > data[9]) { swap = data[4]; data[4] = data[9]; data[9] = swap; }
-      if (data[5] > data[8]) { swap = data[5]; data[5] = data[8]; data[8] = swap; }
-      if (data[1] > data[4]) { swap = data[1]; data[1] = data[4]; data[4] = swap; }
-      if (data[6] > data[9]) { swap = data[6]; data[6] = data[9]; data[9] = swap; }
-      if (data[3] > data[6]) { swap = data[3]; data[3] = data[6]; data[6] = swap; }
-      if (data[7] > data[9]) { swap = data[7]; data[7] = data[9]; data[9] = swap; }
-      if (data[2] > data[4]) { swap = data[2]; data[2] = data[4]; data[4] = swap; }
-      if (data[5] > data[7]) { swap = data[5]; data[5] = data[7]; data[7] = swap; }
-      if (data[8] > data[9]) { swap = data[8]; data[8] = data[9]; data[9] = swap; }
-      if (data[1] > data[2]) { swap = data[1]; data[1] = data[2]; data[2] = swap; }
-      if (data[3] > data[5]) { swap = data[3]; data[3] = data[5]; data[5] = swap; }
-      if (data[4] > data[6]) { swap = data[4]; data[4] = data[6]; data[6] = swap; }
-      if (data[7] > data[8]) { swap = data[7]; data[7] = data[8]; data[8] = swap; }
-      if (data[1] > data[3]) { swap = data[1]; data[1] = data[3]; data[3] = swap; }
-      if (data[4] > data[7]) { swap = data[4]; data[4] = data[7]; data[7] = swap; }
-      if (data[2] > data[5]) { swap = data[2]; data[2] = data[5]; data[5] = swap; }
-      if (data[6] > data[8]) { swap = data[6]; data[6] = data[8]; data[8] = swap; }
-      if (data[2] > data[3]) { swap = data[2]; data[2] = data[3]; data[3] = swap; }
-      if (data[4] > data[5]) { swap = data[4]; data[4] = data[5]; data[5] = swap; }
-      if (data[6] > data[7]) { swap = data[6]; data[6] = data[7]; data[7] = swap; }
-      if (data[3] > data[4]) { swap = data[3]; data[3] = data[4]; data[4] = swap; }
-      if (data[5] > data[6]) { swap = data[5]; data[5] = data[6]; data[6] = swap; }
-
-      output[y * width + x] = data[5];
-    }
-  }
-}
-
 void nonmaxSuppress3x3(unsigned char *input, int width, int height,
                        unsigned char *mask, unsigned char *output) {
   unsigned char buffer[10] = {0};
