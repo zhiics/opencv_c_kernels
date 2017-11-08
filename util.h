@@ -62,8 +62,6 @@ int assert_eq_float(float* arr1, float* arr2, size_t len){
   return ret;
 }
 
-
-
 struct TestImage {
   uchar * data;
   int width;
