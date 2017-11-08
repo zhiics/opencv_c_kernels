@@ -36,14 +36,14 @@ enum ConvertPolicy { WRAP, SATURATE };
     b = usat8(i_b);                                                            \
   } while (0);
 
-void colorConvert(unsigned char *in, int width, int height, int colorFormat,
-                  unsigned char *out) {
+void colorConvert(unsigned char *in, int width, int height, int colorFormat_in,
+                  int colorFormat_out, unsigned char *out) {
   int total = width * height;
 
   int x, y;
   unsigned char cb[4];
   unsigned char cr[4];
-  if (colorFormat == RGB && colorFormat == NV12) {
+  if (colorFormat_in == RGB && colorFormat_out == NV12) {
     int qoffset = 0;
     for (y = 0; y < height; y += 2) {
       for (x = 0; x < width; x += 2) {
@@ -67,7 +67,7 @@ void colorConvert(unsigned char *in, int width, int height, int colorFormat,
         qoffset += 2;
       }
     }
-  } else if (colorFormat == NV12 && colorFormat == RGB) {
+  } else if (colorFormat_in == NV12 && colorFormat_out == RGB) {
     int u_pix = 0;
     int v_pix = 1;
 
@@ -95,15 +95,15 @@ void colorConvert(unsigned char *in, int width, int height, int colorFormat,
   }
 }
 
-void convertDepth(unsigned char *in, int width, int height, int depthFormat,
-                  unsigned char *out, int policy, int shift) {
+void convertDepth(unsigned char *in, int width, int height, int depthFormat_in,
+  int depthFormat_out, unsigned char *out, int policy, int shift) {
   int total = width * height;
 
   int x;
-  if (depthFormat == U8 && depthFormat == S16) {
+  if (depthFormat_in == U8 && depthFormat_out == S16) {
     for (x = 0; x < total; x++)
       ((short *)out)[x] = ((short)(in[x])) << shift;
-  } else if (depthFormat == S16 && depthFormat == U8) {
+  } else if (depthFormat_in == S16 && depthFormat_out == U8) {
     if (policy == WRAP) {
       for (x = 0; x < total; x++)
         out[x] = (unsigned char)(((short *)in)[x] >> shift);
